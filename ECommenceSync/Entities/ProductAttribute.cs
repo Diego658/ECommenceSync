@@ -1,0 +1,18 @@
+﻿using ECommenceSync.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ECommenceSync.Entities
+{
+    public class ProductAttribute<TKey> : IEntity<TKey>
+        where TKey : struct
+    {
+        public TKey Id { get; set; }
+        public string Name { get; set; }
+        public bool Updated { get; set; }
+        public int RetryCount { get; set; }
+    }
+}
