@@ -146,6 +146,10 @@ namespace ECommenceSync.Prestashop.Operations
                     {
                         detalle.download_deadline = null;
                     }
+
+                    detalle.total_price_tax_excl = detalle.unit_price_tax_excl * detalle.product_quantity;
+                    detalle.total_price_tax_incl = detalle.unit_price_tax_incl * detalle.product_quantity;
+
                     await conex.ExecuteAsync(@$"INSERT INTO {_detailsTableName}
                          (id, id_order, product_id, product_attribute_id, product_quantity_reinjected, group_reduction, discount_quantity_applied, download_hash, download_deadline, id_order_invoice, id_warehouse, id_customization, product_name, 
                          product_quantity, product_quantity_in_stock, product_quantity_return, product_quantity_refunded, product_price, reduction_percent, reduction_amount, reduction_amount_tax_incl, reduction_amount_tax_excl, 
