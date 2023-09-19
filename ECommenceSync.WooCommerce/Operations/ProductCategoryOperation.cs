@@ -102,7 +102,7 @@ namespace ECommenceSync.WooCommerce.Operations
 
         async Task<Tuple<SyncResult, Exception>> SyncCategory(ProductCategory<TExternalKey> productCategory)
         {
-            var idWoo = _links.ContainsKey(productCategory.Id) ? _links[productCategory.Id] : 0;
+            var idWoo = Convert.ToUInt64( _links.ContainsKey(productCategory.Id) ? _links[productCategory.Id] : 0);
             //var idPrestashopParent = productCategory.ParentId is null ? RootCategoryPrestashop : _links.ContainsKey(productCategory.ParentId.Value) ? _links[productCategory.ParentId.Value] : 0;
             var idWooParent = GetParentId(productCategory);
             if (idWooParent is null)
@@ -123,7 +123,7 @@ namespace ECommenceSync.WooCommerce.Operations
             return resultado;
         }
 
-        
+
 
         private long? GetParentId(ProductCategory<TExternalKey> productCategory)
         {
@@ -139,18 +139,19 @@ namespace ECommenceSync.WooCommerce.Operations
             return idWooParent;
         }
 
-        async Task AddLink(TExternalKey externalKey, long key)
+        async Task AddLink(TExternalKey externalKey, ulong key)
         {
+            var lKey = Convert.ToInt64(key);
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAddLink, new { ExternalKey = externalKey, Key = key });
-            _links.TryAdd(externalKey, key);
+            await conex.ExecuteAsync(SqlAddLink, new { ExternalKey = externalKey, Key = lKey });
+            _links.TryAdd(externalKey, lKey);
         }
 
         private async Task<Tuple<SyncResult, Exception>> AddCategory(ProductCategory<TExternalKey> productCategory, long idWooParent)
         {
-            var wooCategory = new ProductCategory 
+            var wooCategory = new ProductCategory
             {
-                parent = Convert.ToUInt32( idWooParent),
+                parent = Convert.ToUInt32(idWooParent),
                 name = productCategory.Name,
                 display = "default",
                 description = productCategory.Description,
@@ -176,18 +177,18 @@ namespace ECommenceSync.WooCommerce.Operations
 
         }
 
-        private async Task<Tuple<SyncResult, Exception>> UpdateCategory(ProductCategory<TExternalKey> productCategory, long idWoo, long idWooParent)
+        private async Task<Tuple<SyncResult, Exception>> UpdateCategory(ProductCategory<TExternalKey> productCategory, ulong idWoo, long idWooParent)
         {
             try
             {
-                var wooCategory = await _wc.Category.Get(Convert.ToInt32(idWoo));
+                var wooCategory = await _wc.Category.Get(idWoo);
                 wooCategory.name = productCategory.Name;
                 wooCategory.description = productCategory.Description;
                 wooCategory.slug = productCategory.Name.GetStringForLinkRewrite();
                 Exception error;
                 (wooCategory, error) = await MethodHelper.ExecuteMethodAsync(async () =>
                 {
-                    var tmp = await _wc.Category.Update(Convert.ToInt32(idWoo), wooCategory);
+                    var tmp = await _wc.Category.Update(idWoo, wooCategory);
                     return tmp;
                 }, 0, MethodHelper.TryAgainOnBadRequest);
                 if (error is null)
@@ -204,7 +205,7 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 return Tuple.Create(SyncResult.Error, ex);
             }
-            
+
 
         }
     }

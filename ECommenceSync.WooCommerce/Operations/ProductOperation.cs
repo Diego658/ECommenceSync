@@ -118,7 +118,7 @@ namespace ECommenceSync.WooCommerce.Operations
         {
             
 
-            var idWoo = _links.ContainsKey(product.Id) ? _links[product.Id] : 0;
+            var idWoo = Convert.ToUInt64( _links.ContainsKey(product.Id) ? _links[product.Id] : 0);
 
             if (idWoo == 0 && (product.StockAvailable <= 0 || product.Price <= 0) || product.HasVariants )
             {
@@ -240,14 +240,15 @@ namespace ECommenceSync.WooCommerce.Operations
         }
 
 
-        private async Task AddLink(TExternalKey externalKey, long key)
+        private async Task AddLink(TExternalKey externalKey, ulong key)
         {
+            var lKey = Convert.ToInt64(key);
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAgregarLink, new { ItemID = externalKey, WooCommerceID = key });
-            _links.AddOrUpdate(externalKey, key, (k, v) => v);
+            await conex.ExecuteAsync(SqlAgregarLink, new { ItemID = externalKey, WooCommerceID = lKey });
+            _links.AddOrUpdate(externalKey, lKey, (k, v) => v);
         }
 
-        async Task<Tuple<SyncResult, Exception>> UpdateProduct(Product<TExternalKey> product, long idWoo, long idCategoriaWoo, long idMarcaWoo)
+        async Task<Tuple<SyncResult, Exception>> UpdateProduct(Product<TExternalKey> product, ulong idWoo, long idCategoriaWoo, long idMarcaWoo)
         {
             var wooproduct = new Product
             {
@@ -291,7 +292,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Exception error;
             (wooproduct, error) = await MethodHelper.ExecuteMethodAsync(async () =>
             {
-                var tmp = await _wc.Product.Update(Convert.ToInt32(idWoo), wooproduct);
+                var tmp = await _wc.Product.Update(idWoo, wooproduct);
                 return tmp;
             }, 5,MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
 

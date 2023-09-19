@@ -52,9 +52,11 @@ namespace ECommenceSync.WooCommerce.Operations
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
-            _wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
-            _wp.UserName = databaseHelper.ApiWpAppUser;
-            _wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
+            
+            // TODO: Corregir autenticacion erroneq                
+            //_wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
+            //_wp.UserName = databaseHelper.ApiWpAppUser;
+            //_wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
         }
 
         public void AddWork(List<ProductAttribute<TExternalKey>> values)
@@ -99,16 +101,17 @@ namespace ECommenceSync.WooCommerce.Operations
             _status = OperationStatus.Stopped;
         }
 
-        private async Task AddLink(TExternalKey externalKey, long key)
+        private async Task AddLink(TExternalKey externalKey, ulong key)
         {
+            var lKey = Convert.ToInt64(key);
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAgregarLink, new { AttributeId = externalKey, WooCommerceID = key });
-            _attributesLinks.AddOrUpdate(externalKey, key, (k, v) => v);
+            await conex.ExecuteAsync(SqlAgregarLink, new { AttributeId = externalKey, WooCommerceID = lKey });
+            _attributesLinks.AddOrUpdate(externalKey, lKey, (k, v) => v);
         }
 
         private async Task<Tuple<SyncResult, Exception>> SyncAttribute(ProductAttribute<TExternalKey> attribute)
         {
-            var idWoo = _attributesLinks.ContainsKey(attribute.Id) ? _attributesLinks[attribute.Id] : 0;
+            var idWoo = Convert.ToUInt64( _attributesLinks.ContainsKey(attribute.Id) ? _attributesLinks[attribute.Id] : 0);
             if(idWoo == 0) //nuevo
             {
                 var wooAtrib = new ProductAttribute() 
@@ -136,13 +139,13 @@ namespace ECommenceSync.WooCommerce.Operations
             }
             else
             {
-                var wooAtrib = await _wc.Attribute.Get(Convert.ToInt32( idWoo));
+                var wooAtrib = await _wc.Attribute.Get( idWoo);
                 wooAtrib.name = attribute.Name;
                 wooAtrib.slug = attribute.Name.GetStringForLinkRewrite();
                 Exception error;
                 (wooAtrib, error) = await MethodHelper.ExecuteMethodAsync(async () =>
                 {
-                    var tmp = await _wc.Attribute.Update(Convert.ToInt32(idWoo), wooAtrib);
+                    var tmp = await _wc.Attribute.Update(idWoo, wooAtrib);
                     return tmp;
                 }, 5,  MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
                 return error is null ? Tuple.Create(SyncResult.Created, error) : Tuple.Create(SyncResult.Error, error);

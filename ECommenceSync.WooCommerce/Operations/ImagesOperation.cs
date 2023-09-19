@@ -52,9 +52,12 @@ namespace ECommenceSync.WooCommerce.Operations
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
-            _wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
-            _wp.UserName = databaseHelper.ApiWpAppUser;
-            _wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
+
+            //_wp.Auth = new WordPressPCL.Client.Auth( new WordPressPCL.Utility.HttpHelper( )
+            
+            //_wp.Auth.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
+            //_wp.UserName = databaseHelper.ApiWpAppUser;
+            //_wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
         }
 
         public void AddWork(List<EntityImage<TExternalKey>> values)
@@ -158,7 +161,7 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 return Tuple.Create(SyncResult.NotSynchronized, default(Exception));
             }
-            var productIdWoo = Convert.ToInt32(_productLinks[image.ParentId]);
+            var productIdWoo = Convert.ToUInt64( _productLinks[image.ParentId]);
             if (idWoo == 0)
             {
                 if (image.Blob is null)
@@ -175,7 +178,7 @@ namespace ECommenceSync.WooCommerce.Operations
                     using var stream = await image.Blob.GetStream();
                     //using var stream =  System.IO.File.OpenRead(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg");
                     //var media = await  _wp.Media.Create(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg",$"{image.ParentId}-{image.Id}-{product.slug}.jpg");
-                    var media = await _wp.Media.Create(stream, $"{image.ParentId}-{image.Id}-{product.slug}.png");
+                    var media = await _wp.Media.CreateAsync(stream, $"{image.ParentId}-{image.Id}-{product.slug}.png");
                     product.images.Add(new() 
                     {
                         name = media.Slug,
@@ -237,9 +240,9 @@ namespace ECommenceSync.WooCommerce.Operations
                 return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
             }
 
-            var idWoo = Convert.ToInt32( _producImagesLinks.ContainsKey(image.Id) ? _producImagesLinks[image.Id] : 0);
-            var productIdWoo = Convert.ToInt32( info.WooProductId);
-            var variantIdWoo = Convert.ToInt32(info.WooVariationId);
+            var idWoo = Convert.ToUInt64( _producImagesLinks.ContainsKey(image.Id) ? _producImagesLinks[image.Id] : 0);
+            var productIdWoo = Convert.ToUInt64( info.WooProductId);
+            var variantIdWoo = Convert.ToUInt64(info.WooVariationId);
 
             if (idWoo == 0)
             {
@@ -257,7 +260,7 @@ namespace ECommenceSync.WooCommerce.Operations
                     using var stream = await image.Blob.GetStream();
                     //using var stream =  System.IO.File.OpenRead(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg");
                     //var media = await  _wp.Media.Create(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg",$"{image.ParentId}-{image.Id}-{product.slug}.jpg");
-                    var media = await _wp.Media.Create(stream, $"{image.ParentId}-{image.Id}-{product.slug}.png");
+                    var media = await _wp.Media.CreateAsync(stream, $"{image.ParentId}-{image.Id}-{product.slug}.png");
                     product.images.Add(new()
                     {
                         name = media.Slug,

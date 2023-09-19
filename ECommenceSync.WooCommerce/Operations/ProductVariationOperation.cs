@@ -128,7 +128,7 @@ namespace ECommenceSync.WooCommerce.Operations
         async Task<Tuple<SyncResult, Exception>> SyncVariant(ProductVariant<TExternalKey> variation)
         {
             
-            var idWoo = _links.ContainsKey(variation.Id) ? _links[variation.Id] : 0;
+            var idWoo = Convert.ToUInt64( _links.ContainsKey(variation.Id) ? _links[variation.Id] : 0);
 
             var idCategoriaWoo = _categoryLinks.ContainsKey(variation.ParentId) ? _categoryLinks[variation.ParentId] : 0;
             if (idCategoriaWoo == 0)
@@ -146,7 +146,7 @@ namespace ECommenceSync.WooCommerce.Operations
             if (idWoo == 0)
             {
                 (result, ex, woovariant) = await AddProductVariable(variation, idCategoriaWoo);
-                if(woovariant != null) idWoo = Convert.ToInt64(woovariant.id); 
+                if(woovariant != null) idWoo = woovariant.id.Value; 
 
             }
             else
@@ -167,7 +167,7 @@ namespace ECommenceSync.WooCommerce.Operations
            
             foreach (var productVariant in variation.VariantVariations)
             {
-                (result, ex) = await SyncVariation(productVariant, Convert.ToInt32(idWoo));
+                (result, ex) = await SyncVariation(productVariant, idWoo);
                 if (ex != null)
                 {
                     return Tuple.Create(result, ex);
@@ -340,7 +340,7 @@ namespace ECommenceSync.WooCommerce.Operations
         /// <param name="variation"></param>
         /// <param name="idCategoriaWoo"></param>
         /// <returns></returns>
-        private async Task<Tuple<SyncResult, Exception, Product>> UpdateProductVariable(ProductVariant<TExternalKey> variation, long idWoo, long idCategoriaWoo)
+        private async Task<Tuple<SyncResult, Exception, Product>> UpdateProductVariable(ProductVariant<TExternalKey> variation, ulong idWoo, long idCategoriaWoo)
         {
             var firstProduct = variation.VariantVariations.OrderBy(x => x.Product.Id).FirstOrDefault();
 
@@ -431,7 +431,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Exception error;
             (wooVariant, error) = await MethodHelper.ExecuteMethodAsync(async () =>
             {
-                var tmp = await _wc.Product.Update(Convert.ToInt32(idWoo), wooVariant);
+                var tmp = await _wc.Product.Update(idWoo, wooVariant);
                 return tmp;
             }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
 
@@ -460,12 +460,12 @@ namespace ECommenceSync.WooCommerce.Operations
             return true;
         }
 
-        async Task<Tuple<SyncResult, Exception>> SyncVariation(ProductVariantVariation<TExternalKey> productVariantVariation, int idWhooParent)
+        async Task<Tuple<SyncResult, Exception>> SyncVariation(ProductVariantVariation<TExternalKey> productVariantVariation, ulong idWhooParent)
         {
 
             var product = productVariantVariation.Product;
 
-            var idWoo = _productsLinks.ContainsKey(product.Id) ? _productsLinks[product.Id] : 0;
+            var idWoo = Convert.ToUInt64( _productsLinks.ContainsKey(product.Id) ? _productsLinks[product.Id] : 0);
 
             if (idWoo == 0 && (product.StockAvailable <= 0 || product.Price <= 0))
             {
@@ -487,7 +487,7 @@ namespace ECommenceSync.WooCommerce.Operations
 
         }
 
-        async Task<Tuple<SyncResult, Exception>> AddVariation(ProductVariantVariation<TExternalKey> productVariantVariation, int idParent)
+        async Task<Tuple<SyncResult, Exception>> AddVariation(ProductVariantVariation<TExternalKey> productVariantVariation, ulong idParent)
         {
             var product = productVariantVariation.Product;
             var wooVariation = new Variation()
@@ -523,7 +523,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Exception error;
             (wooVariation, error) = await MethodHelper.ExecuteMethodAsync(async () =>
             {
-                var tmp = await _wc.Product.Variations.Add(wooVariation, idParent);
+                var tmp = await _wc.Product.Variations.Add(wooVariation,  idParent);
                 //_wc.Product.Variations.Add(new Variation)
                 return tmp;
             }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
@@ -531,7 +531,7 @@ namespace ECommenceSync.WooCommerce.Operations
 
             if (error is null)
             {
-                await AddLink(product.Id, wooVariation.id.Value);
+                await AddLink(product.Id, Convert.ToInt64( wooVariation.id.Value));
                 await AddProductVariationVsVariantLink(idParent, wooVariation.id.Value, product.Id);
                 return Tuple.Create(SyncResult.Created, error);
             }
@@ -542,7 +542,7 @@ namespace ECommenceSync.WooCommerce.Operations
         }
 
 
-        async Task<Tuple<SyncResult, Exception>> UpdateVariation(ProductVariantVariation<TExternalKey> productVariantVariation, long idWoo, int idParent)
+        async Task<Tuple<SyncResult, Exception>> UpdateVariation(ProductVariantVariation<TExternalKey> productVariantVariation, ulong idWoo, ulong idParent)
         {
             var product = productVariantVariation.Product;
             var wooVariation = new Variation()
@@ -577,7 +577,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Exception error;
             (wooVariation, error) = await MethodHelper.ExecuteMethodAsync(async () =>
             {
-                var tmp = await _wc.Product.Variations.Update(Convert.ToInt32(idWoo), wooVariation, idParent);
+                var tmp = await _wc.Product.Variations.Update(Convert.ToUInt64(idWoo), wooVariation, idParent);
                 return tmp;
             }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
 
@@ -598,11 +598,12 @@ namespace ECommenceSync.WooCommerce.Operations
         /// <param name="externalKey"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        private async Task AddLinkToProductVariable(TExternalKey externalKey, long key)
+        private async Task AddLinkToProductVariable(TExternalKey externalKey, ulong key)
         {
+            var lKey = Convert.ToInt64(key);
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAgregarLink, new { VariationID = externalKey, WooCommerceID = key });
-            _links.AddOrUpdate(externalKey, key, (k, v) => v);
+            await conex.ExecuteAsync(SqlAgregarLink, new { VariationID = externalKey, WooCommerceID = lKey });
+            _links.AddOrUpdate(externalKey, lKey, (k, v) => v);
         }
 
         private async Task AddLink(TExternalKey externalKey, long key)
@@ -613,7 +614,7 @@ namespace ECommenceSync.WooCommerce.Operations
         }
 
 
-        private async Task AddProductVariationVsVariantLink(long productId, long variantId, TExternalKey externalKey)
+        private async Task AddProductVariationVsVariantLink(ulong productId, ulong variantId, TExternalKey externalKey)
         {
             const string SqlAgregarLink = @"INSERT INTO [dbo].[StoreSync_VariationsVsVariants_WooCommerce]
            ([WooProductId], [WooVariationId] ,[ExternalId])  VALUES (@WooProductId, @WooVariationId, @ExternalId)";
@@ -622,8 +623,8 @@ namespace ECommenceSync.WooCommerce.Operations
             var info = new WooProductVariationVsVariants<TExternalKey>() 
             {
                 ExternalId = externalKey,
-                WooProductId = productId,
-                WooVariationId = variantId
+                WooProductId = Convert.ToInt64( productId),
+                WooVariationId = Convert.ToInt64( variantId)
             };
             _productVariationsVsVariants.AddOrUpdate(externalKey, info, (k, v) => v);
             //_productsLinks.AddOrUpdate(externalKey, key, (k, v) => v);

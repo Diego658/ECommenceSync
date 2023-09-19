@@ -49,9 +49,11 @@ namespace ECommenceSync.WooCommerce.Operations
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
-            _wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
-            _wp.UserName = databaseHelper.ApiWpAppUser;
-            _wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
+
+            // TODO: Corregir autenticacion erroneq 
+            //_wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
+            //_wp.UserName = databaseHelper.ApiWpAppUser;
+            //_wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
         }
 
         public void AddWork(List<ProductAttributeTerm<TExternalKey>> values)
@@ -96,11 +98,12 @@ namespace ECommenceSync.WooCommerce.Operations
             }
             _status = OperationStatus.Stopped;
         }
-        private async Task AddLink(TExternalKey externalKey, long key)
+        private async Task AddLink(TExternalKey externalKey, ulong key)
         {
+            var iKey = Convert.ToInt64(key);
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAgregarLink, new { AttributeTermId = externalKey, WooCommerceID = key });
-            _attributesTermsLinks.AddOrUpdate(externalKey, key, (k, v) => v);
+            await conex.ExecuteAsync(SqlAgregarLink, new { AttributeTermId = externalKey, WooCommerceID = iKey });
+            _attributesTermsLinks.AddOrUpdate(externalKey, iKey, (k, v) => v);
         }
 
         private async Task<Tuple<SyncResult, Exception>> SyncAttributeTerm(ProductAttributeTerm<TExternalKey> attribute)
@@ -111,7 +114,7 @@ namespace ECommenceSync.WooCommerce.Operations
                 //El atributo padre no ha sido sincronizado, intentar luego.
                 return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
             }
-            var idWoo = _attributesTermsLinks.ContainsKey(attribute.Id) ? _attributesTermsLinks[attribute.Id] : 0;
+            var idWoo = Convert.ToUInt64( _attributesTermsLinks.ContainsKey(attribute.Id) ? _attributesTermsLinks[attribute.Id] : 0);
             if (idWoo == 0)
             {
                 var wooAtribTerm = new ProductAttributeTerm() 
@@ -123,13 +126,13 @@ namespace ECommenceSync.WooCommerce.Operations
                 Exception error;
                 (wooAtribTerm, error) = await MethodHelper.ExecuteMethodAsync(async () =>
                 {
-                    var tmp = await _wc.Attribute.Terms.Add( wooAtribTerm, Convert.ToInt32( idWooParent));
+                    var tmp = await _wc.Attribute.Terms.Add( wooAtribTerm, idWooParent.Value);
                     //_wc.Product.Variations.Add(new Variation)
                     return tmp;
                 }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
                 if (error is null)
                 {
-                    await AddLink(attribute.Id, wooAtribTerm.id.Value);
+                    await AddLink(attribute.Id,  wooAtribTerm.id.Value);
                     return Tuple.Create(SyncResult.Created, error);
                 }
                 else
@@ -139,7 +142,7 @@ namespace ECommenceSync.WooCommerce.Operations
                         //Dio error la request pero se guardo, intentar actualizar con el id ya guardado
                         if (wooErrorInfo.Code == "term_exists")  
                         {
-                            await AddLink(attribute.Id, wooErrorInfo.Data.Resource_Id);
+                            await AddLink(attribute.Id, Convert.ToUInt64( wooErrorInfo.Data.Resource_Id));
                             return Tuple.Create(SyncResult.Created, default(Exception));
                         }
                     }
@@ -149,14 +152,14 @@ namespace ECommenceSync.WooCommerce.Operations
             }
             else
             {
-                var wooAtribTerm = await _wc.Attribute.Terms.Get(Convert.ToInt32(idWoo), Convert.ToInt32( idWooParent));
+                var wooAtribTerm = await _wc.Attribute.Terms.Get(idWoo, idWooParent.Value);
                 wooAtribTerm.name = attribute.Name;
                 wooAtribTerm.slug = attribute.Name.GetStringForLinkRewrite();
                 wooAtribTerm.description = attribute.Name;
                 Exception error;
                 (wooAtribTerm, error) = await MethodHelper.ExecuteMethodAsync(async () =>
                 {
-                    var tmp = await _wc.Attribute.Terms.Update(Convert.ToInt32(idWoo), wooAtribTerm, Convert.ToInt32(idWooParent));
+                    var tmp = await _wc.Attribute.Terms.Update(idWoo, wooAtribTerm, idWooParent.Value);
                     //_wc.Product.Variations.Add(new Variation)
                     return tmp;
                 }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
@@ -165,10 +168,10 @@ namespace ECommenceSync.WooCommerce.Operations
             
         }
 
-        private long? GetParentId(ProductAttributeTerm<TExternalKey> term)
+        private ulong? GetParentId(ProductAttributeTerm<TExternalKey> term)
         {
-            long? idWooParent;
-            idWooParent = _attributesLinks.ContainsKey(term.AttributeId) ? _attributesLinks[term.AttributeId] : null;
+            ulong? idWooParent;
+            idWooParent = _attributesLinks.ContainsKey(term.AttributeId) ? Convert.ToUInt64( _attributesLinks[term.AttributeId]) : null;
             return idWooParent;
         }
 
