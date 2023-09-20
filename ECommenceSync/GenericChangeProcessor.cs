@@ -20,6 +20,7 @@ namespace ECommenceSync
         private readonly string SqlRecuperaCambios;
         private readonly string SqlInsertaCambios;
         private readonly string SqlEliminaCambio;
+        private readonly string SqlEliminaTodosCambios;
         private readonly string SqlActualizaError ;
 
         readonly IDatabaseHelper<TConn, TDesKey> _databaseHelper;
@@ -69,6 +70,7 @@ namespace ECommenceSync
             SqlRecuperaCambios = $"SELECT ClaveExterna FROM {changesTable} WHERE Destino = @Destino ";
             SqlInsertaCambios = $"INSERT INTO {changesTable}(Destino, ClaveExterna) VALUES(@Destino, @ClaveExterna)";
             SqlEliminaCambio = $"DELETE FROM {changesTable} WHERE Destino = @Destino AND ClaveExterna = @ClaveExterna";
+            SqlEliminaTodosCambios = $"DELETE FROM {changesTable} WHERE Destino = @Destino";
             SqlActualizaError = $"UPDATE {changesTable} SET TieneError = 1, Error = @Error, StackTrace = @StackTrace WHERE Destino = @Destino AND ClaveExterna = @ClaveExterna";
         }
 
@@ -165,6 +167,7 @@ namespace ECommenceSync
             param.ParameterName = "Destino";
             param.Value = Destination.Operation.ToString();
             var keys = new List<TSourceKey>();// = await conex.QueryAsync<TKey>(SqlRecuperaCambios, new { Destino = Destination.Operation.ToString() });
+            await conex.ExecuteAsync(SqlEliminaTodosCambios, new { Destino = Destination.Operation.ToString() });
             if (keys.Count() == 0) return;
             var entities = await _sourceOperation.ResolveEntities(keys.ToList());
             foreach (var entity in entities)
