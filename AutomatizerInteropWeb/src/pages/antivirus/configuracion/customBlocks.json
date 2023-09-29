@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "data": {
+      "cells": [
+        1
+      ],
+      "values": {
+        "_meta": {
+          "htmlClassNames": "u_row"
+        },
+        "columns": false,
+        "padding": "0px",
+        "deletable": true,
+        "draggable": true,
+        "hideMobile": false,
+        "selectable": true,
+        "hideDesktop": false,
+        "noStackMobile": false,
+        "backgroundColor": "",
+        "backgroundImage": {
+          "url": "",
+          "cover": false,
+          "center": true,
+          "repeat": false,
+          "fullWidth": true
+        },
+        "columnsBackgroundColor": "#b8b8b8"
+      },
+      "columns": [
+        {
+          "values": {
+            "_meta": {
+              "htmlClassNames": "u_column"
+            }
+          },
+          "contents": [
+            {
+              "type": "text",
+              "values": {
+                "text": "<p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px; font-family: 'Source Sans Pro', sans-serif;\">Personalizado 1 Debido a la situaci&oacute;n actual por la salud y seguridad de nuestros colaboradores, clientes, empleados y la ciudadan&iacute;a en general Helpcompartes contra el COVID-19 <span style=\"line-height: 16.8px; font-size: 12px;\">ayuda</span> t&uacute; tambi&eacute;n y #quedateencasa.</span></p>",
+                "_meta": {
+                  "htmlClassNames": "u_content_text"
+                },
+                "color": "#000000",
+                "deletable": true,
+                "draggable": true,
+                "linkStyle": {
+                  "inherit": true,
+                  "linkColor": "#0000ee",
+                  "linkUnderline": true,
+                  "linkHoverColor": "#0000ee",
+                  "linkHoverUnderline": true
+                },
+                "textAlign": "left",
+                "lineHeight": "140%",
+                "selectable": true,
+                "containerPadding": "10px"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "category": "Encabezado",
+    "tags": [
+      "QuedateEnCasa"
+    ],
+    "custom": true
+  }
+  
+]

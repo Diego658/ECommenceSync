@@ -1,0 +1,93 @@
+.textoConExistencia {
+  color: blue;
+}
+
+.textoSinExistencia {
+  color: red;
+}
+
+.first-group,
+.second-group {
+  padding: 20px;
+}
+
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.treeItem {
+  font-size: 13px;
+  font-weight: lighter;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+}
+
+.button-indicator {
+  height: 32px;
+  width: 32px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.badge {
+  align-items: center;
+  width: 60px; /* pixel unit */
+  margin-left: 5px;
+  padding: 1px 1px 1px 1px; /* pixel unit */
+  border-radius: 10%;
+  font-size: 13px;
+  text-align: right;
+  background: #333;
+  color: white;
+}
+
+.box {
+  display: flex;
+  flex-direction: row;
+}
+
+.box-item {
+  margin-left: 5px;
+  max-width: 400px;
+}
+
+.push {
+  margin-left: auto;
+}
+
+.dx-icon-noimage {
+  // in Angular apps, add ::ng-deep before
+  color: rgb(175, 58, 58);
+  text-decoration: line-through;
+}
+
+
+.arbolInventarioContainer {
+  display: grid;
+  grid-template-columns: 95%;
+  grid-template-rows: max-content 40px;
+}
+
+.arbolInventario-commandContainer{
+  grid-row: 2;
+}
+
+.arbolInventarioContent{
+  display: block;
+}
+
+
+.generarCombinaciones{
+  display: grid;
+  grid-template-rows: auto auto;
+  margin: 10px 10px 10px 10px;
+  gap: 20px;
+}
+
+
+.splitContainer{
+  display: flex;
+  flex-direction: row;
+}

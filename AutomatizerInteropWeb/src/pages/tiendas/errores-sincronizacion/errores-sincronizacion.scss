@@ -1,0 +1,34 @@
+.gridContainer {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-gap: 1px;
+  padding: 1px;
+}
+
+.detalleError {
+  height: calc(100vh - 35vh);
+  overflow-y: auto;
+}
+
+.errorContainer {
+  display: grid;
+  grid-template-columns: 20px auto;
+  grid-template-rows: 20px;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+}
+
+.nombreItem {
+  font-weight: bold;
+}
+
+.ErrorProducto {
+}
+
+.arbolInventario {
+  overflow-y: auto;
+  overflow-x: hidden;
+}

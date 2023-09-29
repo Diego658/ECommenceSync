@@ -1,0 +1,170 @@
+@import "./themes/generated/variables.base.scss";
+
+.app {
+  @import "./themes/generated/variables.base.scss";
+  background-color: darken($base-bg, 5);
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+dx-state-focused {
+  text-decoration-color: white;
+}
+
+.customTabHeader {
+  display: grid;
+  grid-template-rows: 20px 20px;
+}
+
+.tabHeaderIcon {
+  margin: auto;
+}
+
+.tabHeaderText {
+  margin: auto;
+}
+
+.fieldGroupTittle {
+  border-bottom: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #d75028;
+  font-size: large;
+  color: rgb(168, 165, 162);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  gap: 5px;
+}
+
+.fieldGroup-Tittle {
+  border-bottom: solid;
+  border-bottom-color: #d75028;
+  border-bottom-width: thin;
+  font-size: large;
+  color: #d75028;
+  margin-bottom: 10px;
+}
+
+.fieldContainer {
+  display: grid;
+  grid-template-rows: 20px 30px;
+  padding-right: 20px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  
+}
+
+.fieldContainer.withTittle {
+  display: grid;
+  grid-template-rows: 20px 30px;
+}
+
+
+.fieldContainer.xs1 {
+  width: 25px;
+}
+
+.fieldContainer.xs2 {
+  width: 50px;
+}
+
+.fieldContainer.s1 {
+  width: 75px;
+}
+
+.fieldContainer.s2 {
+  width: 150px;
+}
+
+.fieldContainer.x1 {
+  width: 200px;
+}
+
+.fieldContainer.x15 {
+  width: 300px;
+}
+
+.fieldContainer.x2 {
+  width: 400px;
+}
+
+.fieldContainer.x25 {
+  width: 500px;
+}
+
+.fieldContainer.x3 {
+  width: 600px;
+}
+
+.fieldContainer.x4 {
+  width: "100%";
+}
+
+
+.fieldTitle {
+  font-size: small;
+  color: rgb(168, 165, 162);
+  font-weight: lighter;
+}
+
+.fieldValue {
+  margin-left: 5px;
+}
+
+.field-fullwidth {
+  width: 100%;
+}
+
+.content-row {
+  padding-bottom: 10px;
+}
+
+.button-row {
+  display: flex;
+  margin-left: auto;
+}
+
+.button-row-button {
+  display: block;
+  margin-left: 10px;
+}
+
+.infoContainer {
+  border-color: #25b9d7;
+  border-width: thin;
+  border-style: solid;
+  padding: 0.75rem 0 0.75rem 2.875rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: 80px auto;
+}
+
+.infoContainer > p {
+  display: block;
+}
+
+.infoicon {
+  margin: auto;
+  color: deepskyblue;
+}
+
+.groupPanel {
+  border-color: $base-accent;
+  border-style: solid;
+  border-width: thin;
+  width: fit-content;
+}
+
+.groupPanel-header{
+  background-color: $base-accent;
+  color: $base-text-color;
+}
+
+.groupPanel-content{
+ padding: 5px; 
+}

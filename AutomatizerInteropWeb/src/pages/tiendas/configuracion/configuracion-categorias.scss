@@ -1,0 +1,51 @@
+.form > h4 {
+  margin-bottom: 20px;
+}
+
+.form > div,
+#selection-treeview {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.checked-items {
+  margin-top: 20px;
+}
+
+.selected-data {
+  padding: 20px;
+  font-size: 115%;
+  font-weight: bold;
+}
+
+.dx-list-item-content {
+  padding-left: 0;
+}
+
+.buttonsGroup {
+  display: flex;
+  flex-direction: row;
+}
+
+.button {
+  margin-left: 10px;
+}
+
+#small-indicator,
+#medium-indicator,
+#large-indicator {
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+#button .button-indicator {
+  height: 32px;
+  width: 100px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.categoriaConExistencia {
+  color: red;
+}

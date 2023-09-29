@@ -1,0 +1,9 @@
+{
+  "items": [],
+  "baseTheme": "material.orange.dark.compact",
+  "assetsBasePath": "../../../node_modules/devextreme/dist/css/",
+  "outputColorScheme": "dark",
+  "makeSwatch": true,
+  "base": true,
+  "widgets": ["treeview", "navbar"]
+}

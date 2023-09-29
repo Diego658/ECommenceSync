@@ -1,0 +1,89 @@
+.filtrosContainer {
+  display: grid;
+  grid-template-columns: 260px 130px 130px 260px;
+  grid-template-rows: auto auto auto;
+  gap: 5px;
+}
+
+.filtroRangofechas {
+  grid-row-start: 1;
+  grid-row-end: 3;
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.filtroUsuarios {
+  grid-row-start: 1;
+  grid-row-end: 1;
+  grid-column-start: 2;
+  grid-column-end: 4;
+}
+
+.filtroClientes {
+  grid-row-start: 1;
+  grid-row-end: 1;
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+
+.filtroNroPiezas {
+  grid-row-start: 2;
+  grid-row-end: 2;
+  grid-column-start: 2;
+  grid-column-end: 2;
+}
+
+.filtroNroGuia {
+  grid-row-start: 2;
+  grid-row-end: 2;
+  grid-column-start: 3;
+  grid-column-end: 3;
+}
+
+.filtroCompaniaTransporte {
+  grid-row-start: 2;
+  grid-row-end: 2;
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+.filtrosButtonBar {
+  grid-row: 3;
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+}
+
+.filtrosButton {
+  padding: 5px;
+  margin: auto;
+}
+
+.guiaTransporteContent {
+  display: flex;
+}
+.guiaTransporteInfo {
+  padding: 5px;
+  
+}
+.guiaTransporteImagen {
+  padding: 5px;
+}
+
+.imagenGuiaTransporte {
+  width: 450px;
+  height: 320px;
+  background-position: center;
+  background-size: cover;
+  border: solid;
+  border-width: thin;
+}
+
+.buttonsBar {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.buttonBarItem {
+  margin-right: 5;
+}

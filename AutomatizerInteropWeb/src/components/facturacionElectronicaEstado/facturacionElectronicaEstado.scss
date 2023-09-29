@@ -1,0 +1,65 @@
+.configuracionName {
+  font-size: 130%;
+  opacity: 0.6;
+  text-align: left;
+  margin: 5pt;
+}
+.header {
+  text-align: center;
+}
+
+.item {
+  height: 100%;
+}
+
+.buttons-column > .column-header {
+  flex-grow: 0;
+  width: 150px;
+  height: 35px;
+  font-size: 130%;
+  opacity: 0.6;
+  text-align: left;
+  padding-left: 15px;
+}
+
+.textBadge {
+  display: inline-block;
+  padding: 10px 10px 10px 10px; /* pixel unit */
+  font-size: 15px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 10px 10px 10px 10px; /* pixel unit */
+  border-radius: 50%;
+  font-size: 15px;
+  text-align: center;
+  background: #03a9f4;
+  color: #fefefe;
+}
+
+.buttonInfo {
+  width: 140;
+  height: 40;
+}
+
+.tablaDocumentos {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #9e9e9e;
+  text-align: left;
+  padding: 8px;
+}
+
+.header-valor {
+  width: 100px;
+}
+
+.number {
+  text-align: right;
+}

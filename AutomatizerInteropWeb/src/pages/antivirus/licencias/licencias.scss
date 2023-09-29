@@ -1,0 +1,124 @@
+.cellUltimaNotificacion {
+    color: rgb(29, 29, 29);
+    margin: auto;
+    width: fit-content;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #d75028;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 110%;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #d75028 transparent transparent;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.infoVentaContaniner {
+    display: grid;
+    grid-template-rows: 250px 220px 30px;
+    grid-template-columns: 480px 450px;
+    gap: 5px;
+}
+
+.infoFactura {
+    grid-row: 1;
+}
+
+.infoLicencia {
+    grid-row: 2;
+}
+
+.infoCliente {
+    grid-row: 1;
+    grid-column: 2;
+    border-left: #d75028;
+    border-left-style: none;
+    border-left-width: 1px;
+    display: grid;
+    grid-template-rows: 20px 60px 60px 80px 220px 50px;
+}
+
+.buttonsContainer {
+    display: flex;
+    flex-direction: row-reverse;
+    width: 450px;
+    justify-items: center;
+    margin-top: 20px;
+}
+
+.buttonItem {
+    padding: 5px;
+}
+
+.pdfViewer {
+    display: grid;
+    grid-template-rows: 50px auto;
+}
+
+.pdfViewerHeader {
+    display: flex;
+    align-items: center;
+}
+
+.renovarLicenciaContainer {
+}
+
+.antivirusLicenciasDetalleSeries {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.antivirusLicenciasDetalleSeries-serie {
+    margin: 2px;
+    padding: 2px;
+    background-color: #d75028;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: smaller;
+}
+
+.estadisticas-year-item {
+    display: flex;
+    
+}
+
+.estadisticas-year-name {
+    margin-right: 10px;
+    padding-right: 5px;
+    margin-bottom: 5px;
+}
+
+.estadisticas-year-numeroRenovaciones {
+    margin-right: 10px;
+    padding-right: 5px;
+    margin-bottom: 10px;
+    background-color: #d75028;
+    border-radius: 5px;
+    font-size: small;
+    text-align: center;
+}

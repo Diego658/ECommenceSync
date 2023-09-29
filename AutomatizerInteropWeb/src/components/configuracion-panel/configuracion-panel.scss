@@ -1,0 +1,29 @@
+@import "../../themes/generated/variables.base.scss";
+
+.configuracion-panel {
+  .dx-list-item .dx-icon {
+    vertical-align: middle;
+    color: $base-text-color;
+    margin-right: 16px;
+  }
+  .dx-rtl .dx-list-item .dx-icon {
+    margin-right: 0;
+    margin-left: 16px;
+  }
+}
+
+.configuracion-info {
+  display: flex;
+  align-items: center;
+
+  .dx-toolbar-menu-section & {
+    padding: 10px 6px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .configuracion-name {
+    font-size: 14px;
+    color: $base-text-color;
+    margin: 0 9px;
+  }
+}

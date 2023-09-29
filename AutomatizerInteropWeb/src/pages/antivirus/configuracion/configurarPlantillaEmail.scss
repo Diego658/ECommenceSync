@@ -1,0 +1,14 @@
+.configuraPlantillas{
+    height: 65vh;
+    display: grid;
+    grid-template-rows: 50px auto;
+    gap: 10px;
+}
+
+.seleccionPlantillas{
+    display: grid;
+    grid-template-columns: 300px auto;
+    grid-template-rows: 40px;
+    gap: 10px;
+}
+

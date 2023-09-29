@@ -1,0 +1,77 @@
+.grid-block {
+  display: block;
+  padding-bottom: 10px;
+}
+
+.emailEmptyText {
+  text-decoration: line-through;
+  color: #a22323;
+  font-weight: bold;
+}
+
+.long-title h3 {
+  font-family: "Segoe UI Light", "Helvetica Neue Light", "Segoe UI", "Helvetica Neue", "Trebuchet MS", Verdana;
+  font-weight: 200;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.formVenta {
+  margin: 5pt;
+  width: 100%;
+  border: none;
+}
+
+.label {
+  font-family: "Segoe UI Light", "Helvetica Neue Light", "Segoe UI", "Helvetica Neue", "Trebuchet MS", Verdana;
+  font-weight: bold;
+  font-size: 15px;
+  text-align: left;
+}
+
+.value {
+  font-family: "Segoe UI Light", "Helvetica Neue Light", "Segoe UI", "Helvetica Neue", "Trebuchet MS", Verdana;
+  font-weight: lighter;
+  font-size: 14px;
+  text-align: left;
+}
+
+.valueNumber {
+  font-family: "Segoe UI Light", "Helvetica Neue Light", "Segoe UI", "Helvetica Neue", "Trebuchet MS", Verdana;
+  font-weight: lighter;
+  font-size: 14px;
+  text-align: center;
+}
+
+.value-cliente {
+  font-size: 16px;
+}
+
+.textRed {
+  color: red;
+}
+
+.centerText {
+  text-align: center;
+}
+
+.antivirus-text1 {
+  color: blue;
+  text-align: right;
+}
+
+.antivirus-text2 {
+  color: #bf3030;
+  text-align: right;
+}
+
+.antivirus-text3 {
+  color: #ff2400;
+  text-align: right;
+}
+
+.antivirus-text4 {
+  color: #800000;
+  text-align: right;
+}
