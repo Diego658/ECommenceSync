@@ -34,7 +34,7 @@ namespace AutomatizerInterop.WebApi.Controllers
 
             return configuraciones.Select(x=> new 
             {
-                x.idConfiguracionPrograma,
+                idConfiguracionPrograma =x.Id,
                 x.NombreConfiguracion
             } ).ToList();
         }
@@ -46,7 +46,7 @@ namespace AutomatizerInterop.WebApi.Controllers
             var configuracion = await configuracionProvider.GetConfiguracionAsync(idConfiguracion);
             return new 
             {
-                configuracion.idConfiguracionPrograma,
+                configuracion.Id,
                 configuracion.NombreConfiguracion
             };
 

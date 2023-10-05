@@ -30,7 +30,7 @@ namespace AutomatizerInterop.Data.Repositories
                     await GetConfiguracionesAsync();
                 }
             }
-            return configuraciones.First(c => c.idConfiguracionPrograma == idConfiguracion);
+            return configuraciones.First(c => c.Id == idConfiguracion);
             //return await _mysqlDatabase.FirstOrDefaultAsync<ConfiguracionProgramaFacturacionElectronica>
             //    ("SELECT * FROM sistema.configuracionprograma where idConfiguracionPrograma = @0", idConfiguracion);
         }
@@ -48,7 +48,7 @@ namespace AutomatizerInterop.Data.Repositories
                 if (configuraciones == null)
                 {
                     var tmp = new List<ConfiguracionProgramaFacturacionElectronica>();
-                    using (var reader = await database.QueryAsync<ConfiguracionProgramaFacturacionElectronica>("SELECT * FROM sistema.configuracionprograma"))
+                    using (var reader = await database.QueryAsync<ConfiguracionProgramaFacturacionElectronica>("SELECT * FROM ConfiguracionPrograma"))
                     {
                         while (await reader.ReadAsync())
                         {
@@ -83,7 +83,7 @@ namespace AutomatizerInterop.Data.Repositories
                     GetConfiguracionesAsync().Wait();
                 }
             }
-            return configuraciones.First(c => c.idConfiguracionPrograma == idConfiguracion);
+            return configuraciones.First(c => c.Id == idConfiguracion);
         }
     }
 }

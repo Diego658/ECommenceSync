@@ -7,7 +7,7 @@ namespace AutomatizerInterop.Data.Entities
 {
     public class ConfiguracionProgramaFacturacionElectronica
     {
-        public int idConfiguracionPrograma { get; set; }
+        public int Id { get; set; }
         public string ServidorSQLServer { get; set; }
 
         public string UsuarioSQLServer { get; set; }

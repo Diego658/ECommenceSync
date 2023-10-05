@@ -188,11 +188,11 @@ namespace AutomatizerInterop.WebApi.Controllers
             foreach (var configuracion in configuraciones.ToList())
             {
                 var pendientes = new DocumentosPendientes();
-                pendientes.ConfiguracionId = configuracion.idConfiguracionPrograma;
+                pendientes.ConfiguracionId = configuracion.Id;
                 pendientes.ConfiguracionName = configuracion.NombreConfiguracion;
-                pendientes.Factura = await _repository.GetNumeroPendientesAsync(configuracion.idConfiguracionPrograma, 1);
-                pendientes.NotaCredito = await _repository.GetNumeroPendientesAsync(configuracion.idConfiguracionPrograma, 4);
-                pendientes.Retencion = await _repository.GetNumeroPendientesAsync(configuracion.idConfiguracionPrograma, 7);
+                pendientes.Factura = await _repository.GetNumeroPendientesAsync(configuracion.Id, 1);
+                pendientes.NotaCredito = await _repository.GetNumeroPendientesAsync(configuracion.Id, 4);
+                pendientes.Retencion = await _repository.GetNumeroPendientesAsync(configuracion.Id, 7);
                 resultado.Add(pendientes);
             }
             return resultado;

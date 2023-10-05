@@ -22,7 +22,7 @@ namespace AutomatizerInterop.WebApi.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var configuracion = configuracionProvider.GetConfiguracion(1);
-            optionsBuilder.UseSqlServer($"Data Source={configuracion.ServidorSQLServer};Initial Catalog={configuracion.CatalogoSqlServer};User ID=Automatizer;Password=jwptadgt158");
+            optionsBuilder.UseSqlServer($"Data Source={configuracion.ServidorSQLServer};Initial Catalog={configuracion.CatalogoSqlServer};User ID=Automatizer;Password=jwptadgt158;Encrypt=False");
         }
     }
 }

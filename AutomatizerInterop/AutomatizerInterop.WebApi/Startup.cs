@@ -80,9 +80,9 @@ namespace AutomatizerInterop.WebApi
             services.AddScoped<IUserService, UserService>();
 
 
-            var mysqlConStr = Configuration.GetConnectionString("facturacionElectronicaMysql");
-            services.AddScoped<IDatabase>(provider => { return new Database(mysqlConStr, new MySqlDatabaseProvider()); });
-            services.AddSingleton(typeof(IInteropConfiguracionProvider), new InteropConfiguracionProvider(new Database(mysqlConStr, new MySqlDatabaseProvider())));
+            var mysqlConStr = Configuration.GetConnectionString("BaseInterop");
+            services.AddScoped<IDatabase>(provider => { return new Database(mysqlConStr, new SqlServerDatabaseProvider()); });
+            services.AddSingleton(typeof(IInteropConfiguracionProvider), new InteropConfiguracionProvider(new Database(mysqlConStr, new SqlServerDatabaseProvider())));
             services.AddScoped(typeof(IUsuariosRepository), typeof(UsaPrimeraConfiguracionUsuariosRepository));
 
 

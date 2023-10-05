@@ -70,7 +70,7 @@ namespace AutomatizerInterop.Data.Repositories
 
 
             var facturas = _mysqlDatabase.Query<FacturacionElectronicaFactura>(@"SELECT ID As IDDocumento, SerieDocumento, FechaEmision As Fecha, '' As Transaccion, TrnNum As Numero, '' As Cliente, EstadoSri, RideGenerado, XmlGenerado
-            FROM sistema.fedocumentos where ConfiguracionId = @0 AND TipoDocumentoSri = 1 AND FechaEmision >= @1 AND FechaEmision <= @2;", configuracion.idConfiguracionPrograma, fechaInicio, fechaFin).ToList();
+            FROM sistema.fedocumentos where ConfiguracionId = @0 AND TipoDocumentoSri = 1 AND FechaEmision >= @1 AND FechaEmision <= @2;", configuracion.Id, fechaInicio, fechaFin).ToList();
 
 
             foreach (var infoAdicional in infoAdicionalFacturas)
@@ -114,7 +114,7 @@ WHERE     (FAC_ELE_Transacciones.EmpCod = @0) AND   (FAC_ELE_Documentos.ModIde =
             reader.Dispose();
 
             var notasCredito = _mysqlDatabase.Query<FacturacionElectronicaNotaCredito>(@"SELECT ID As IDDocumento, FechaEmision As Fecha, '' As Transaccion, TrnNum As Numero, '' As Cliente, EstadoSri, RideGenerado, XmlGenerado, '' as NumeroFacturaAfectada 
-            FROM sistema.fedocumentos where ConfiguracionId = @0 AND TipoDocumentoSri = 4 AND FechaEmision >= @1 AND FechaEmision <= @2;", configuracion.idConfiguracionPrograma, fechaInicio.Date, fechaFin.Date.AddHours(23).AddMinutes(59).AddSeconds(59)).ToList();
+            FROM sistema.fedocumentos where ConfiguracionId = @0 AND TipoDocumentoSri = 4 AND FechaEmision >= @1 AND FechaEmision <= @2;", configuracion.Id, fechaInicio.Date, fechaFin.Date.AddHours(23).AddMinutes(59).AddSeconds(59)).ToList();
 
 
             foreach (var infoAdicional in infoAdicionalNorasCredito)
@@ -185,7 +185,7 @@ WHERE     (FAC_ELE_Transacciones.EmpCod = @0) AND   (FAC_ELE_Documentos.ModIde =
                 EmpCod = configuracion.CodigoEmpresa,
                 FechaInicio = fechaInicio,
                 FechaFin = fechaFin,
-                ConfiguracionId = configuracion.idConfiguracionPrograma
+                ConfiguracionId = configuracion.Id
             }).ToList();
 
 
@@ -241,7 +241,7 @@ WHERE     (FAC_ELE_Transacciones.EmpCod = @0) AND   (FAC_ELE_Documentos.ModIde =
                 EmpCod = configuracion.CodigoEmpresa,
                 TrnCod = retencion.CodigoTransaccionCompra,
                 TrnNum = retencion.Numero,
-                ConfiguracionId = configuracion.idConfiguracionPrograma
+                ConfiguracionId = configuracion.Id
             });
 
             if (estadoFacturacion != null)

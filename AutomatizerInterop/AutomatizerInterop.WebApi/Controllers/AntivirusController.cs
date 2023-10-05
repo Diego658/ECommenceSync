@@ -75,10 +75,10 @@ namespace AutomatizerInterop.WebApi.Controllers
             var resultado = new List<EmpresaResumenEstadoLicenciasAntivirus>(5);
             foreach (var configuracion in configuraciones)
             {
-                var estado = await _antivirusRepository.GetResumenEstadoLicenciasAntivirus(configuracion.idConfiguracionPrograma);
+                var estado = await _antivirusRepository.GetResumenEstadoLicenciasAntivirus(configuracion.Id);
                 resultado.Add(new EmpresaResumenEstadoLicenciasAntivirus
                 {
-                    ConfiguracionId = configuracion.idConfiguracionPrograma,
+                    ConfiguracionId = configuracion.Id,
                     NombreConfiguracion = configuracion.NombreConfiguracion,
                     Estados = estado
                 });

@@ -70,7 +70,7 @@ namespace AutomatizerInterop.Data.EntityFramewrok
 
 
             var configuracion = _configuracionProvider.GetConfiguracion(ConfiguracionId);
-            optionsBuilder.UseSqlServer($"Data Source={configuracion.ServidorSQLServer};Initial Catalog={configuracion.CatalogoSqlServer};User ID=Automatizer;Password=jwptadgt158");
+            optionsBuilder.UseSqlServer($"Data Source={configuracion.ServidorSQLServer};Initial Catalog={configuracion.CatalogoSqlServer};User ID=Automatizer;Password=jwptadgt158;Encrypt=False");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
