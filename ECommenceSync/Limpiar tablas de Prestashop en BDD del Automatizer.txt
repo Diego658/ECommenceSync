@@ -1,0 +1,46 @@
+TRUNCATE TABLE StoreSync_Marcas_Prestashop;
+TRUNCATE TABLE StoreSync_ImagenesItems_Prestashop;
+TRUNCATE TABLE StoreSync_Orders_PrestashopVsFacturas;
+TRUNCATE TABLE StoreSync_Prestashop_Countries;
+TRUNCATE TABLE StoreSync_Productos_Existencias_Prestashop;
+TRUNCATE TABLE StoreSync_Prestashop_States;
+TRUNCATE TABLE StoreSync_Productos_Existencias;
+TRUNCATE TABLE StoreSync_OrdersCarriers_Prestashop_History;
+TRUNCATE TABLE StoreSync_Carriers_Prestashop;
+TRUNCATE TABLE StoreSync_Orders_Prestashop;
+TRUNCATE TABLE StoreSync_OrdersCarriers_Prestashop;
+TRUNCATE TABLE StoreSync_OrdersDetails_Prestashop;
+TRUNCATE TABLE StoreSync_Productos_Precios;
+TRUNCATE TABLE StoreSync_OrdersPayments_Prestashop;
+TRUNCATE TABLE StoreSync_Productos_Precios_Prestashop;
+TRUNCATE TABLE StoreSync_Addresses_Prestashop;
+TRUNCATE TABLE StoreSync_OrdersStates_Prestashop;
+TRUNCATE TABLE StoreSync_Atributos;
+TRUNCATE TABLE StoreSync_OrdersHistory_Prestashop;
+TRUNCATE TABLE StoreSync_PrestashopCambiosPendientes;
+TRUNCATE TABLE StoreSync_AtributosValores;
+TRUNCATE TABLE StoreSync_Productos_Prestashop;
+TRUNCATE TABLE StoreSync_Productos_ErroresSincronizacion;
+TRUNCATE TABLE StoreSync_AtributosValores_Prestashop;
+TRUNCATE TABLE StoreSync_Categorias_Prestashop;
+TRUNCATE TABLE StoreSync_Tags_Prestashop;
+TRUNCATE TABLE StoreSync_Customers_Prestashop;
+TRUNCATE TABLE StoreSync_CustomerMessages_Prestashop;
+TRUNCATE TABLE StoreSync_CustomerThreads_Prestashop;
+TRUNCATE TABLE StoreSync_Atributos_Prestashop;
+TRUNCATE TABLE StoreSync_Productos_Links;
+TRUNCATE TABLE StoreSync_OrdersDetails_Prestashop_SeriesAutomatizer;
+TRUNCATE TABLE StoreSync_OperationsExecutionsTimestamps;
+
+
+UPDATE StoreSync_PrestashopOperations SET LastSyncTime = '20010101'
+UPDATE StoreSync_OperationsTimestamps SET LastSyncTime = '2000-01-01 00:00:00.0000000 -05:00'
+UPDATE StoreSync_Tags SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00'
+UPDATE StoreSync_Productos_Tags SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00';
+UPDATE StoreSync_Marcas SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00', FechaModificacionLogo  = '2000-01-01 00:00:00.0000000 -05:00'
+UPDATE StoreSync_ImagenesItems SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00'
+DELETE FROM StoreSync_ImagenesItems WHERE Operacion	 = 'delete'
+UPDATE Precios SET Precio = Precio + 0.01;
+UPDATE Precios SET Precio = Precio - 0.01;
+UPDATE   StoreSync_Categorias SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00';
+UPDATE  StoreSync_Productos SET FechaModificacion = '2000-01-01 00:00:00.0000000 -05:00';
