@@ -8,12 +8,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 using WordPressPCL;
+
 
 namespace ECommenceSync.WooCommerce.Operations
 {
@@ -52,13 +54,11 @@ namespace ECommenceSync.WooCommerce.Operations
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
+            _wp.Auth.UseBasicAuth(databaseHelper.ApiWpAppUser, databaseHelper.ApiWpAppPwd);
 
-            //_wp.Auth = new WordPressPCL.Client.Auth( new WordPressPCL.Utility.HttpHelper( )
-            
-            //_wp.Auth.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
-            //_wp.UserName = databaseHelper.ApiWpAppUser;
-            //_wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
         }
+
+
 
         public void AddWork(List<EntityImage<TExternalKey>> values)
         {

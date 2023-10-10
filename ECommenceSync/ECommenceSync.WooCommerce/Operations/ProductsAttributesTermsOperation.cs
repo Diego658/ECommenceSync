@@ -49,11 +49,8 @@ namespace ECommenceSync.WooCommerce.Operations
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
-
-            // TODO: Corregir autenticacion erroneq 
-            //_wp.AuthMethod = WordPressPCL.Models.AuthMethod.ApplicationPassword;
-            //_wp.UserName = databaseHelper.ApiWpAppUser;
-            //_wp.SetApplicationPassword(databaseHelper.ApiWpAppPwd);
+            _wp.Auth.UseBasicAuth(databaseHelper.ApiWpAppUser, databaseHelper.ApiWpAppPwd);
+            
         }
 
         public void AddWork(List<ProductAttributeTerm<TExternalKey>> values)
