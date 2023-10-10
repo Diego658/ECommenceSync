@@ -225,7 +225,7 @@ namespace ECommenceSync.WooCommerce.Operations
 
 
 
-        async Task<Tuple<SyncResult, Exception>> SyncCategoryImage(EntityImage<TExternalKey> image)
+         Task<Tuple<SyncResult, Exception>> SyncCategoryImage(EntityImage<TExternalKey> image)
         {
             throw new NotImplementedException();
         }
