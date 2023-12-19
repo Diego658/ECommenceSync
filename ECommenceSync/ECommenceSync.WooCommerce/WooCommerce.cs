@@ -2,6 +2,7 @@
 using ECommenceSync.Interfaces;
 using ECommenceSync.WooCommerce.Helpers;
 using ECommenceSync.WooCommerce.Operations;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace ECommenceSync.WooCommerce
         readonly List<IOperation> _operations;
         readonly List<IProcessor> _processors;
         private readonly IWooCommerceOperationsHelper _operationsHelper;
+        private readonly ILoggerFactory loggerFactory;
 
         public string Name => "WooCommerce_5_4";
 
@@ -45,9 +47,11 @@ namespace ECommenceSync.WooCommerce
 
         public WooCommerce(IErp erp, IStoresCollection storesCollection,
             IWooCommerceDatabaseHelper databaseHelper,
-            IWooCommerceOperationsHelper operationsHelper)
+            IWooCommerceOperationsHelper operationsHelper,
+            ILoggerFactory loggerFactory)
         {
             _operationsHelper = operationsHelper ?? throw new ArgumentNullException(nameof(operationsHelper));
+            this.loggerFactory = loggerFactory;
             if (storesCollection is null)
             {
                 throw new ArgumentNullException(nameof(storesCollection));
@@ -67,7 +71,7 @@ namespace ECommenceSync.WooCommerce
 
         public void ConfigureOperations<TErpKey>() where TErpKey : struct
         {
-            foreach (var op in _erp.Operations.Where(op => op.Direction == OperationDirections.ErpToStore))
+            foreach (var op in _erp.Operations.Where(op => op.Direction == OperationDirections.ErpToStore /*&& op.Operation == ECommenceSync.Operations.Products*/))
             {
                 switch (op.Operation)
                 {
@@ -87,7 +91,7 @@ namespace ECommenceSync.WooCommerce
                         if (op is ISourceOperation<TErpKey, Product<TErpKey>> proOp)
                         {
                             var processor = new WooCommerceChangeProcessor<TErpKey, Product<TErpKey>>(_databaseHelper, proOp, _operationsHelper.Configuration);
-                            var destination = new ProductOperation<TErpKey>(_databaseHelper, _operationsHelper, proOp.GetHierarchy());
+                            var destination = new ProductOperation<TErpKey>(_databaseHelper, _operationsHelper, proOp.GetHierarchy(), loggerFactory.CreateLogger<ProductOperation<TErpKey>>());
                             processor.Destination = destination;
                             proOp.AddChangeProcessor(processor);
                             _operations.Add(destination);
@@ -141,6 +145,19 @@ namespace ECommenceSync.WooCommerce
                             _processors.Add(processor);
                         }
                         break;
+
+                    case ECommenceSync.Operations.Brands:
+                        if (op is ISourceOperation<TErpKey, Brand<TErpKey>> brandsOp)
+                        {
+                            var processor = new WooCommerceChangeProcessor<TErpKey, Brand<TErpKey>>(_databaseHelper, brandsOp, _operationsHelper.Configuration);
+                            var destination = new BrandsOperation<TErpKey>(_databaseHelper);
+                            processor.Destination = destination;
+                            brandsOp.AddChangeProcessor(processor);
+                            _operations.Add(destination);
+                            _processors.Add(processor);
+                        }
+                        break;
+
                     default:
                         break;
                 }

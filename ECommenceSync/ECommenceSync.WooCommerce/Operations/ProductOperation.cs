@@ -3,10 +3,12 @@ using Dapper;
 using ECommenceSync.Entities;
 using ECommenceSync.Interfaces;
 using ECommenceSync.WooCommerce.Helpers;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,14 +30,15 @@ namespace ECommenceSync.WooCommerce.Operations
         ConcurrentDictionary<TExternalKey, long> _tagLinks;
         ConcurrentDictionary<TExternalKey, long> _brandsLinks;
 
-        
+
         readonly bool _addAllParentCategoriesToProduct = true;
         readonly Dictionary<TExternalKey, TExternalKey> _categoriesHierarchy;
         private readonly WCObject _wc;
+        private readonly ILogger<ProductOperation<TExternalKey>> _logger;
 
         public CancellationTokenSource TaskCancelTokenSource { get; set; }
         public CancellationTokenSource CancelTokenSource { get; set; }
-
+        
         public Action<Product<TExternalKey>, SyncResult, Exception> OnSynchronized { get; set; }
 
         public ECommenceSync.Operations Operation => ECommenceSync.Operations.Products;
@@ -50,7 +53,8 @@ namespace ECommenceSync.WooCommerce.Operations
 
         public ProductOperation(IWooCommerceDatabaseHelper databaseHelper,
             IWooCommerceOperationsHelper operationsHelper,
-            Dictionary<TExternalKey, TExternalKey> categoriesHierarchy)
+            Dictionary<TExternalKey, TExternalKey> categoriesHierarchy,
+            ILogger<ProductOperation<TExternalKey>> logger)
         {
             _categoriesHierarchy = categoriesHierarchy;
             Status = OperationStatus.Created;
@@ -59,6 +63,7 @@ namespace ECommenceSync.WooCommerce.Operations
             _operationsHelper = operationsHelper;
             var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
+            _logger = logger;
         }
 
         public void AddWork(List<Product<TExternalKey>> values)
@@ -116,68 +121,76 @@ namespace ECommenceSync.WooCommerce.Operations
 
         async Task<Tuple<SyncResult, Exception>> SyncProduct(Product<TExternalKey> product)
         {
+            try
+            {
+                _logger.LogDebug("Procesando {Name}, Id {Id}", product.Name, product.Id);
+
+                var idWoo = Convert.ToUInt64(_links.ContainsKey(product.Id) ? _links[product.Id] : 0);
+
+                if (idWoo == 0 && (product.StockAvailable <= 0 || product.Price <= 0) || product.HasVariants)
+                {
+                    return Tuple.Create(SyncResult.NotSynchronized, default(Exception));
+                }
+
+
+                var idCategoriaWoo = _categoryLinks.ContainsKey(product.ParentId) ? _categoryLinks[product.ParentId] : 0;
+                if (idCategoriaWoo == 0)
+                {
+                    product.RetryCount++;
+                    return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
+                }
+                product.RetryCount = 0;
+                long idMarcaWoo;
+                if (product.BrandId is null)
+                {
+                    idMarcaWoo = 0;
+                }
+                else if (_brandsLinks.ContainsKey(product.BrandId.Value))
+                {
+                    idMarcaWoo = _brandsLinks[product.BrandId.Value];
+                }
+                else
+                {
+                    product.RetryCount++;
+                    return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
+                }
+                product.TagIds ??= "";
+                var tags = product
+                    .TagIds
+                    .Split(',')
+                    .Where(s => s.Length > 0)
+                    .Select(id => Convert.ToInt32(id))
+                    .Cast<TExternalKey>()
+                    .All(id => _tagLinks.ContainsKey(id));
+
+                if (!tags)
+                {
+                    product.RetryCount++;
+                    return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
+                }
+
+                Tuple<SyncResult, Exception> resultado;
+                if (idWoo == 0)
+                {
+                    resultado = await AddProduct(product, idCategoriaWoo, idMarcaWoo);
+                }
+                else
+                {
+                    resultado = await UpdateProduct(product, idWoo, idCategoriaWoo, idMarcaWoo);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(SyncResult.Error, ex);                
+            }
             
-
-            var idWoo = Convert.ToUInt64( _links.ContainsKey(product.Id) ? _links[product.Id] : 0);
-
-            if (idWoo == 0 && (product.StockAvailable <= 0 || product.Price <= 0) || product.HasVariants )
-            {
-                return Tuple.Create(SyncResult.NotSynchronized, default(Exception));
-            }
-
-
-            var idCategoriaWoo = _categoryLinks.ContainsKey(product.ParentId) ? _categoryLinks[product.ParentId] : 0;
-            if (idCategoriaWoo == 0)
-            {
-                product.RetryCount++;
-                return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
-            }
-            product.RetryCount = 0;
-            long idMarcaWoo;
-            if (product.BrandId is null)
-            {
-                idMarcaWoo = 0;
-            }
-            else if (_brandsLinks.ContainsKey(product.BrandId.Value))
-            {
-                idMarcaWoo = _brandsLinks[product.BrandId.Value];
-            }
-            else
-            {
-                product.RetryCount++;
-                return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
-            }
-            product.TagIds ??= "";
-            var tags = product
-                .TagIds
-                .Split(',')
-                .Where(s => s.Length > 0)
-                .Select(id => Convert.ToInt32(id))
-                .Cast<TExternalKey>()
-                .All(id => _tagLinks.ContainsKey(id));
-
-            if (!tags)
-            {
-                product.RetryCount++;
-                return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
-            }
-
-            Tuple<SyncResult, Exception> resultado;
-            if (idWoo == 0)
-            {
-                resultado = await AddProduct(product, idCategoriaWoo, idMarcaWoo);
-            }
-            else
-            {
-                resultado = await UpdateProduct(product, idWoo, idCategoriaWoo, idMarcaWoo);
-            }
-            return resultado;
 
         }
 
-        async Task<Tuple<SyncResult, Exception>> AddProduct(Product<TExternalKey> product, long idCategoriaWoo, long idMarcaPrestashop)
+        async Task<Tuple<SyncResult, Exception>> AddProduct(Product<TExternalKey> product, long idCategoriaWoo, long idMarcaWoo)
         {
-            
+
             var wooproduct = new Product
             {
                 name = product.Name,
@@ -201,19 +214,20 @@ namespace ECommenceSync.WooCommerce.Operations
                 sold_individually = false,
                 weight = product.Weight,
                 reviews_allowed = true,
-                parent_id = Convert.ToUInt32(idCategoriaWoo),
+                parent_id = Convert.ToUInt64(idCategoriaWoo),
                 categories = new List<ProductCategoryLine>()
                 {
-                    new(){ id= Convert.ToUInt32( idCategoriaWoo) },
+                    new(){ id= Convert.ToUInt64( idCategoriaWoo) },
                 },
                 tags = product.TagIds.Split(',')
                     .Where(s => s.Trim().Length > 0)
                     .Select(id => Convert.ToInt32(id))
                     .Cast<TExternalKey>()
-                    .Select(id => new ProductTagLine() { id = Convert.ToUInt32(_tagLinks[id]) }).ToList(),
+                    .Select(id => new ProductTagLine() { id = Convert.ToUInt64(_tagLinks[id]) }).ToList(),
                 menu_order = product.PositionInCategory,
                 tax_status = "taxable",
                 tax_class = product.HasTaxes ? _operationsHelper.TaxClassIva12 : _operationsHelper.TaxClassIva0,
+
             };
 
             //wooproduct.variations
@@ -223,14 +237,23 @@ namespace ECommenceSync.WooCommerce.Operations
             (wooproduct, error) = await MethodHelper.ExecuteMethodAsync(async () =>
             {
                 var tmp = await _wc.Product.Add(wooproduct);
+
                 //_wc.Product.Variations.Add(new Variation)
                 return tmp;
-            },5, MethodHelper.TryAgainOnBadRequest);
+            }, 5, MethodHelper.TryAgainOnBadRequest);
+
+
 
 
             if (error is null)
             {
                 await AddLink(product.Id, wooproduct.id.Value);
+                if (idMarcaWoo > 0)
+                {
+                    await SetBrand(idMarcaWoo, wooproduct);
+                }
+
+
                 return Tuple.Create(SyncResult.Created, error);
             }
             else
@@ -239,6 +262,29 @@ namespace ECommenceSync.WooCommerce.Operations
             }
         }
 
+        [DataContract]
+        private class BrandsInfo
+        {
+            [DataMember(EmitDefaultValue = false, Name ="brands")]
+            public List<long> Brands { get; set; }
+            public BrandsInfo(long brand)
+            {
+                Brands = new List<long> { brand };
+            }
+        }
+
+        private async Task SetBrand(long idMarcaWoo, Product wooproduct)
+        {
+            //Establecer marca
+            await MethodHelper.ExecuteMethodAsync(async () =>
+            {
+                
+                //var tmp = await _wc.Product.API.PostRestful($"products/{wooproduct.id}", new BrandsInfo( idMarcaWoo));
+                var tmp = await _wc.Product.API.SendHttpClientRequest($"products/{wooproduct.id}",
+                   RequestMethod.PUT, new BrandsInfo(idMarcaWoo));
+                return tmp;
+            }, 2, MethodHelper.TryAgainOnBadRequest);
+        }
 
         private async Task AddLink(TExternalKey externalKey, ulong key)
         {
@@ -252,7 +298,7 @@ namespace ECommenceSync.WooCommerce.Operations
         {
             var wooproduct = new Product
             {
-                id= Convert.ToUInt32(idWoo),
+                id = Convert.ToUInt64(idWoo),
                 name = product.Name,
                 slug = product.Name.GetStringForLinkRewrite(),
                 type = "simple",
@@ -274,16 +320,16 @@ namespace ECommenceSync.WooCommerce.Operations
                 sold_individually = false,
                 weight = product.Weight,
                 reviews_allowed = true,
-                parent_id = Convert.ToUInt32(idCategoriaWoo),
+                parent_id = Convert.ToUInt64(idCategoriaWoo),
                 categories = new List<ProductCategoryLine>()
                 {
-                    new(){ id= Convert.ToUInt32( idCategoriaWoo) },
+                    new(){ id= Convert.ToUInt64( idCategoriaWoo) },
                 },
                 tags = product.TagIds.Split(',')
                     .Where(s => s.Trim().Length > 0)
                     .Select(id => Convert.ToInt32(id))
                     .Cast<TExternalKey>()
-                    .Select(id => new ProductTagLine() { id = Convert.ToUInt32(_tagLinks[id]) }).ToList(),
+                    .Select(id => new ProductTagLine() { id = Convert.ToUInt64(_tagLinks[id]) }).ToList(),
                 menu_order = product.PositionInCategory,
                 tax_status = "taxable",
                 tax_class = product.HasTaxes ? _operationsHelper.TaxClassIva12 : _operationsHelper.TaxClassIva0,
@@ -294,10 +340,16 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 var tmp = await _wc.Product.Update(idWoo, wooproduct);
                 return tmp;
-            }, 5,MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
+            }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
 
             if (error is null)
             {
+
+                if (idMarcaWoo > 0)
+                {
+                    await SetBrand(idMarcaWoo, wooproduct);
+                }
+
                 return Tuple.Create(SyncResult.Updated, error);
             }
             else

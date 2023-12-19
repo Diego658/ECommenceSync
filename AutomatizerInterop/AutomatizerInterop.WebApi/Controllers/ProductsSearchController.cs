@@ -39,7 +39,8 @@ namespace AutomatizerInterop.WebApi.Controllers
             if (int.TryParse(idConfig, out var id))
             {
                 var config = _configuracionProvider.GetConfiguracion(id);
-                return DataSourceLoader.Load(searchDbContext.ArbolInventario.Where(x => x.EmpCod == config.CodigoEmpresa), options);
+                var data = DataSourceLoader.Load(searchDbContext.ArbolInventario.Where(x => x.EmpCod == config.CodigoEmpresa), options);
+                return data;
             }
             return BadRequest("Debe de establecerce un id de configuracion en los headers");
         }

@@ -49,7 +49,7 @@ export function ArbolInventarioLeftPanel({selectItem, height}) {
       dataSource={tasksData}
       keyExpr="itemID"
       parentIdExpr="padreID"
-      hasItemsExpr="tieneItems"
+      hasItemsExpr={(x)=>{ console.log(x); return x.tieneItems;}}
       showRowLines={true}
       showBorders={true}
       columnAutoWidth={true}

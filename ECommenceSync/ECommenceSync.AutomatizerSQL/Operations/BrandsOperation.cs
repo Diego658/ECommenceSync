@@ -42,6 +42,10 @@ namespace ECommenceSync.AutomatizerSQL.Operations
 
         public override async Task<List<Brand<int>>> GetUpdated()
         {
+            
+            
+            
+            
             if (SyncTimeInfo is null) throw new InvalidOperationException("You must call beginsync!!!");
             using var sqlConn = (SqlConnection)DataHelper.GetConnection();
             using var sqlCmd = sqlConn.CreateCommand();
@@ -131,6 +135,7 @@ namespace ECommenceSync.AutomatizerSQL.Operations
         {
             if (keys.Count == 0) return new List<Brand<int>>();
             using var sqlConn = (SqlConnection)DataHelper.GetConnection();
+    
             using var sqlCmd = sqlConn.CreateCommand();
             await sqlConn.OpenAsync();
             sqlCmd.CommandText = SqlResolveBrands;

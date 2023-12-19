@@ -51,7 +51,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Status = OperationStatus.Created;
             _workQueue = new ConcurrentQueue<EntityImage<TExternalKey>>();
             _databaseHelper = databaseHelper ?? throw new ArgumentNullException(nameof(databaseHelper));
-            var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
+            var rest = new RestAPI($"{databaseHelper.ApiUrl}/v2/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
             _wp.Auth.UseBasicAuth(databaseHelper.ApiWpAppUser, databaseHelper.ApiWpAppPwd);

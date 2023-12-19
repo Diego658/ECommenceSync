@@ -151,7 +151,7 @@ namespace ECommenceSync.WooCommerce.Operations
         {
             var wooCategory = new ProductCategory
             {
-                parent = Convert.ToUInt32(idWooParent),
+                parent = Convert.ToUInt64(idWooParent),
                 name = productCategory.Name,
                 display = "default",
                 description = productCategory.Description,

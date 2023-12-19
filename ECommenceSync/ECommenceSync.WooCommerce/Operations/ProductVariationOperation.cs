@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -250,19 +251,6 @@ namespace ECommenceSync.WooCommerce.Operations
                         attibutes[attributeTerm.AttributeId].Add(attributeTerm.Id, termn);
                     }
                 }
-
-                //vv.AttributeTerms.ForEach(async x => 
-                //{
-                //    var termn = await _attributesOperation.ResolveEntity(x.Id);
-                //    if (!attibutes.ContainsKey(x.AttributeId))
-                //    {
-                //        attibutes.Add(x.AttributeId, new());
-                //    }
-                //    if(!attibutes[x.AttributeId].ContainsKey(x.Id))
-                //    {
-                //        attibutes[x.AttributeId].Add(x.Id, x);
-                //    }
-                //});
             }
 
             if(!variation.VariantVariations.Any(x=> CanSyncVariantVariation(x)))
@@ -293,17 +281,17 @@ namespace ECommenceSync.WooCommerce.Operations
                 sold_individually = false,
                 weight = 0,
                 reviews_allowed = true,
-                parent_id = Convert.ToUInt32(idCategoriaWoo),
+                parent_id = Convert.ToUInt64(idCategoriaWoo),
                 categories = new List<ProductCategoryLine>()
                 {
-                    new(){ id= Convert.ToUInt32( idCategoriaWoo) },
+                    new(){ id= Convert.ToUInt64( idCategoriaWoo) },
                 },
                 tags = new(),
                 menu_order = null,
                 tax_status = "taxable",
                 attributes = attibutes.Select( x=> new ProductAttributeLine() 
                 {
-                    id = Convert.ToUInt32(_attributesLinks[x.Key]),
+                    id = Convert.ToUInt64(_attributesLinks[x.Key]),
                     variation = true,
                     visible = true,
                     options = x.Value.Select(a => a.Value.Name).ToList()
@@ -325,6 +313,7 @@ namespace ECommenceSync.WooCommerce.Operations
             if (error is null)
             {
                 await AddLinkToProductVariable(variation.Id, wooVariant.id.Value);
+                await SetBrand(idMarcaWoo, wooVariant);
                 return Tuple.Create(SyncResult.Created, error, wooVariant);
             }
             else
@@ -332,6 +321,35 @@ namespace ECommenceSync.WooCommerce.Operations
                 return Tuple.Create(SyncResult.Error, error, default(Product));
             }
         }
+
+        #region SetBrand
+
+        
+
+        [DataContract]
+        private class BrandsInfo
+        {
+            [DataMember(EmitDefaultValue = false, Name = "brands")]
+            public List<long> Brands { get; set; }
+            public BrandsInfo(long brand)
+            {
+                Brands = new List<long> { brand };
+            }
+        }
+
+        private async Task SetBrand(long idMarcaWoo, Product wooproduct)
+        {
+            //Establecer marca
+            await MethodHelper.ExecuteMethodAsync(async () =>
+            {
+
+                //var tmp = await _wc.Product.API.PostRestful($"products/{wooproduct.id}", new BrandsInfo( idMarcaWoo));
+                var tmp = await _wc.Product.API.SendHttpClientRequest($"products/{wooproduct.id}",
+                   RequestMethod.PUT, new BrandsInfo(idMarcaWoo));
+                return tmp;
+            }, 2, MethodHelper.TryAgainOnBadRequest);
+        }
+        #endregion
 
 
         /// <summary>
@@ -343,6 +361,18 @@ namespace ECommenceSync.WooCommerce.Operations
         private async Task<Tuple<SyncResult, Exception, Product>> UpdateProductVariable(ProductVariant<TExternalKey> variation, ulong idWoo, long idCategoriaWoo)
         {
             var firstProduct = variation.VariantVariations.OrderBy(x => x.Product.Id).FirstOrDefault();
+
+
+            long idMarcaWoo= 0;
+            if (firstProduct.Product.BrandId is null)
+            {
+                idMarcaWoo = 0;
+            }
+            else if (_brandsLinks.ContainsKey(firstProduct.Product.BrandId.Value))
+            {
+                idMarcaWoo = _brandsLinks[firstProduct.Product.BrandId.Value];
+            }
+            
 
             Dictionary<TExternalKey, Dictionary<TExternalKey, ProductAttributeTerm<TExternalKey>>> attibutes = new();
             foreach (var vv in variation.VariantVariations)
@@ -373,18 +403,6 @@ namespace ECommenceSync.WooCommerce.Operations
                     }
                 }
 
-                //vv.AttributeTerms.ForEach(async x => 
-                //{
-                //    var termn = await _attributesOperation.ResolveEntity(x.Id);
-                //    if (!attibutes.ContainsKey(x.AttributeId))
-                //    {
-                //        attibutes.Add(x.AttributeId, new());
-                //    }
-                //    if(!attibutes[x.AttributeId].ContainsKey(x.Id))
-                //    {
-                //        attibutes[x.AttributeId].Add(x.Id, x);
-                //    }
-                //});
             }
 
             var wooVariant = new Product()
@@ -410,17 +428,17 @@ namespace ECommenceSync.WooCommerce.Operations
                 sold_individually = false,
                 weight = 0,
                 reviews_allowed = true,
-                parent_id = Convert.ToUInt32(idCategoriaWoo),
+                parent_id = Convert.ToUInt64(idCategoriaWoo),
                 categories = new List<ProductCategoryLine>()
                 {
-                    new(){ id= Convert.ToUInt32( idCategoriaWoo) },
+                    new(){ id= Convert.ToUInt64( idCategoriaWoo) },
                 },
                 tags = new(),
                 menu_order = null,
                 tax_status = "taxable",
                 attributes = attibutes.Select(x => new ProductAttributeLine()
                 {
-                    id = Convert.ToUInt32(_attributesLinks[ x.Key]),
+                    id = Convert.ToUInt64(_attributesLinks[ x.Key]),
                     variation = true,
                     visible = true,
                     name = "",
@@ -438,6 +456,8 @@ namespace ECommenceSync.WooCommerce.Operations
             if (error is null)
             {
                 //await AddLink(variation.Id, wooVariant.id.Value);
+                await SetBrand(idMarcaWoo, wooVariant);
+
                 return Tuple.Create(SyncResult.Created, error, wooVariant);
             }
             else
@@ -517,7 +537,7 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 var idWhooAttibute = _attributesLinks.ContainsKey(attribute.AttributeId) ? _attributesLinks[attribute.AttributeId] : 0;
                 var sourceAttribute = await _attributesOperation.ResolveEntity(attribute.Id);
-                wooVariation.attributes.Add(new() { id = Convert.ToUInt32(idWhooAttibute), option = sourceAttribute.Name });
+                wooVariation.attributes.Add(new() { id = Convert.ToUInt64(idWhooAttibute), option = sourceAttribute.Name });
             }
 
             Exception error;
@@ -571,7 +591,7 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 var idWhooAttibute = _attributesLinks.ContainsKey(attribute.AttributeId) ? _attributesLinks[attribute.AttributeId] : 0;
                 var sourceAttribute = await _attributesOperation.ResolveEntity(attribute.Id);
-                wooVariation.attributes.Add(new VariationAttribute() { id = Convert.ToUInt32(idWhooAttibute), option = sourceAttribute.Name  });
+                wooVariation.attributes.Add(new VariationAttribute() { id = Convert.ToUInt64(idWhooAttibute), option = sourceAttribute.Name  });
             }
 
             Exception error;
@@ -619,7 +639,8 @@ namespace ECommenceSync.WooCommerce.Operations
             const string SqlAgregarLink = @"INSERT INTO [dbo].[StoreSync_VariationsVsVariants_WooCommerce]
            ([WooProductId], [WooVariationId] ,[ExternalId])  VALUES (@WooProductId, @WooVariationId, @ExternalId)";
             using var conex = _databaseHelper.GetConnection();
-            await conex.ExecuteAsync(SqlAgregarLink, new { WooProductId = productId, WooVariationId = variantId, ExternalId = externalKey });
+            await conex.ExecuteAsync(SqlAgregarLink, new { WooProductId = Convert.ToInt64(productId),
+                WooVariationId = Convert.ToInt64( variantId), ExternalId = externalKey });
             var info = new WooProductVariationVsVariants<TExternalKey>() 
             {
                 ExternalId = externalKey,
