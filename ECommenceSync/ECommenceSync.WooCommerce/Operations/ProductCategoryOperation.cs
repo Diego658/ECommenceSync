@@ -193,7 +193,7 @@ namespace ECommenceSync.WooCommerce.Operations
                 }, 0, MethodHelper.TryAgainOnBadRequest);
                 if (error is null)
                 {
-                    await AddLink(productCategory.Id, wooCategory.id.Value);
+                    //await AddLink(productCategory.Id, wooCategory.id.Value);
                     return Tuple.Create(SyncResult.Created, default(Exception));
                 }
                 else
