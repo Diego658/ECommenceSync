@@ -114,7 +114,7 @@ namespace ECommenceSync.WooCommerce.Operations
                 Tuple<SyncResult, Exception> resultado;
                 if (idWoo == 0)
                 {
-                    var wooCategory = new ProductCategory
+                    var wooBrand = new ProductCategory
                     {
                         parent = null,
                         name = brand.Name,
@@ -123,15 +123,15 @@ namespace ECommenceSync.WooCommerce.Operations
                         slug = brand.Name.GetStringForLinkRewrite(),
                     };
                     Exception error;
-                    (wooCategory, error) = await MethodHelper.ExecuteMethodAsync(async () =>
+                    (wooBrand, error) = await MethodHelper.ExecuteMethodAsync(async () =>
                     {
-                        var tmp = await _wc.Product.API.SendHttpClientRequest("products/brands", RequestMethod.POST, wooCategory, null);
+                        var tmp = await _wc.Product.API.SendHttpClientRequest("products/brands", RequestMethod.POST, wooBrand, null);
                         //var tmp = await _wc.Category.Add(wooCategory);
                         return _wc.Product.API.DeserializeJSon<ProductCategory>(tmp);
                     }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
                     if (error is null)
                     {
-                        await AddLink(brand.Id, wooCategory.id.Value);
+                        await AddLink(brand.Id, wooBrand.id.Value);
                         resultado = Tuple.Create(SyncResult.Created, default(Exception));
                     }
                     else
@@ -141,7 +141,32 @@ namespace ECommenceSync.WooCommerce.Operations
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    var wooBrand = new ProductCategory
+                    {
+                        id = idWoo,
+                        parent = null,
+                        name = brand.Name,
+                        display = "default",
+                        description = brand.Description,
+                        slug = brand.Name.GetStringForLinkRewrite(),
+                    };
+
+                    Exception error;
+                    (wooBrand, error) = await MethodHelper.ExecuteMethodAsync(async () =>
+                    {
+                        var tmp = await _wc.Product.API.SendHttpClientRequest($"products/brands/{idWoo}", RequestMethod.PUT, wooBrand, null);
+                        //var tmp = await _wc.Category.Add(wooCategory);
+                        return _wc.Product.API.DeserializeJSon<ProductCategory>(tmp);
+                    }, 5, MethodHelper.TryAgainOnBadRequest, MethodHelper.StopsOnTermExist);
+                    if (error is null)
+                    {
+                        //await AddLink(brand.Id, wooCategory.id.Value);
+                        resultado = Tuple.Create(SyncResult.Updated, default(Exception));
+                    }
+                    else
+                    {
+                        resultado = Tuple.Create(SyncResult.Error, error);
+                    }
                 }
                 return resultado;
             }
