@@ -51,7 +51,7 @@ namespace ECommenceSync.WooCommerce.Operations
             Status = OperationStatus.Created;
             _workQueue = new ConcurrentQueue<EntityImage<TExternalKey>>();
             _databaseHelper = databaseHelper ?? throw new ArgumentNullException(nameof(databaseHelper));
-            var rest = new RestAPI($"{databaseHelper.ApiUrl}/v2/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
+            var rest = new RestAPI($"{databaseHelper.ApiUrl}/v3/", databaseHelper.ApiUser, databaseHelper.ApiPassword);
             _wc = new WCObject(rest);
             _wp = new WordPressClient(databaseHelper.ApiUrlWordpress);
             _wp.Auth.UseBasicAuth(databaseHelper.ApiWpAppUser, databaseHelper.ApiWpAppPwd);
@@ -175,6 +175,7 @@ namespace ECommenceSync.WooCommerce.Operations
                     {
                         throw new Exception("No se pudo recuperar el producto para la imagen");
                     }
+                    
                     using var stream = await image.Blob.GetStream();
                     //using var stream =  System.IO.File.OpenRead(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg");
                     //var media = await  _wp.Media.Create(@"C:\Users\diego\OneDrive\Escritorio\banner-02-1-1024x410.jpg",$"{image.ParentId}-{image.Id}-{product.slug}.jpg");
