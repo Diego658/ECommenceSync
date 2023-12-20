@@ -125,7 +125,8 @@ namespace ECommenceSync.WooCommerce.Operations
             {
                 _logger.LogDebug("Procesando {Name}, Id {Id}", product.Name, product.Id);
 
-                var idWoo = Convert.ToUInt64(_links.ContainsKey(product.Id) ? _links[product.Id] : 0);
+                var idWooL = _links.ContainsKey(product.Id) ? _links[product.Id] : 0;
+                UInt64 idWoo = idWooL == long.MinValue ? 0 : Convert.ToUInt64( idWooL);  //Convert.ToUInt64(_links.ContainsKey(product.Id) ? _links[product.Id] : 0);
 
                 if (idWoo == 0 && (product.StockAvailable <= 0 || product.Price <= 0) || product.HasVariants)
                 {
@@ -168,6 +169,7 @@ namespace ECommenceSync.WooCommerce.Operations
                     product.RetryCount++;
                     return Tuple.Create(SyncResult.NotSynchronizedPostponed, default(Exception));
                 }
+
 
                 Tuple<SyncResult, Exception> resultado;
                 if (idWoo == 0)
