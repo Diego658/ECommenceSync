@@ -6,6 +6,7 @@ using ECommenceSync.Prestashop.Helpers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,7 +122,6 @@ namespace ECommenceSync.Prestashop.Operations
             try
             {
                 var idPrestashop = _links.ContainsKey(product.Id) ? _links[product.Id] : 0;
-
                 if (idPrestashop ==0 && ( product.Weight <= 0 || product.StockAvailable <= 0 || product.Price <= 0))
                 {
                     return Tuple.Create(SyncResult.NotSynchronized, default(Exception));
@@ -316,7 +316,7 @@ namespace ECommenceSync.Prestashop.Operations
                 prestashopProduct.price = product.Price;
                 prestashopProduct.condition = product.Condition;
                 prestashopProduct.show_condition = product.ShowCondition? 1:0;
-                prestashopProduct.position_in_category = 0;
+                //prestashopProduct.position_in_category = product.PositionInCategory;
                 if (prestashopProduct.price <=0)
                 {
                     prestashopProduct.active = 0;
